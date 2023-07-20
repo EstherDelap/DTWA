@@ -66,7 +66,6 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
 		sz+=spin[3]
 	end
 	collective_spin[1] = [sx/2, sy/2, sz/2] #collective spin at time t=0
-	Sz = [sz/2]
 	for t in 2:N #we have already done the first one
 		sx = 0
 		sy = 0
@@ -99,9 +98,8 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
 		end
 		collective_spin[t] = [sx/2, sy/2, sz/2]
 		S = deepcopy(S_new)
-		push!(Sz, sz/2)
 	end
-	return Sz, collective_spin
+	return collective_spin
 end
 
 function spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
