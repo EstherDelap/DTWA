@@ -1,0 +1,9 @@
+name = "DTWA"
+uuid = "818cb60f-5718-4da2-bc5f-a0680f0ace0c"
+authors = ["EstherDelap <py20ed@leeds.ac.uk>"]
+version = "0.1.0"
+
+[deps]
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
