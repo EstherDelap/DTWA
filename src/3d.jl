@@ -102,6 +102,22 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
 	return collective_spin
 end
 
+function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
+	J = J_matrix(dim, α)
+    number_spins = dim[1]*dim[2]*dim[3]
+	J_bar = sum(J.data)/number_spins
+    time_interval = (0.0, 10.0/J_bar)
+	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
+	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, α,J)[2]
+	collective_spin_all_traj[1] = initial_traj
+	for i in 2:number_repeats
+		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω,α,J)[2]
+		collective_spin_all_traj[i] = traj
+	end
+	return collective_spin_all_traj
+end
+
+
 function spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
 	J = J_matrix(dim, α)
     number_spins = dim[1]*dim[2]*dim[3]
