@@ -161,7 +161,7 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
 	end
 
     number_spins = dim[1]*dim[2]*dim[3]
-	J_bar = sum(J.data)/number_spins
+	J_bar = sum(Jz.data)/number_spins
     time_interval = (0.0, 10.0/J_bar)
 	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
 	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
