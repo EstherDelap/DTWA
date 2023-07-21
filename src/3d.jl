@@ -81,7 +81,7 @@ function spin_array_3D(dim, axis, dir)
 	return spins
 end
 
-function euler(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	
 	collective_spin = Vector{Vector{Float64}}(undef,N) #collective_spin[t]=[sx(t),sy(t),sz(t)]
 
