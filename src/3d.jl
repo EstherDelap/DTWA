@@ -2,9 +2,10 @@ struct Interactions
 	data::Array{Float64,6}
 end
 
-function Interactions(dim::NTuple{3,Int})
-	h = Interactions(Array{Float64}(undef,dim[1],dim[2],dim[3],dim[1],dim[2],dim[3]))
-	return h
+Interactions(dim::NTuple{3,Int}) = Interactions(dim...)
+
+function Interactions(d1, d2, d3)
+	return Interactions(Array{Float64}(undef,d1,d2,d3,d1,d2,d3))
 end
 
 function Base.getindex(interaction_matrix::Interactions, r1::Vector{Int64}, r2::Vector{Int64})
@@ -15,18 +16,53 @@ function Base.setindex!(interaction_matrix::Interactions, d::Float64, r1, r2)
 	interaction_matrix.data[r1[1], r1[2], r1[3], r2[1], r2[2], r2[3]] = d
 end
 
+dims(ints::Interactions) = size(ints.data)[1:3]
+
+Base.CartesianIndices(ints::Interactions) = CartesianIndices(dims(ints))
+
 LinearAlgebra.norm(i::CartesianIndex) = sqrt(i[1]^2 + i[2]^2 + i[3]^2)
 
-function J_matrix(dim, α)
-	h = Interactions(Array{Float64}(undef,dim[1],dim[2],dim[3],dim[1],dim[2],dim[3]))
-	n = dim[1]*dim[2]*dim[3]
-    for r1 in CartesianIndices(h.data)
+function Jz_Ising(dims,α)
+	n = *(dims...)
+	h = Interactions(dims) # undef array
+	for r1 in CartesianIndices(h.data)
 		for r2 in CartesianIndices(h.data)
-            if r1 == r2
-                h[r1,r2] = 0.0
-            else
-			    h[r1,r2] = 1/(n*(norm(r1-r2)^α))
-            end
+			if norm(r1-r2) == 0
+				h[r1,r2] = 0.0
+			else
+				h[r1,r2] = 1/(n*(norm(r1-r2)^α))
+			end
+		end
+	end
+	return h
+end
+
+function Jx_Ising(dim)
+	h = Interactions(zeros(Float64,dim[1],dim[2],dim[3],dim[1],dim[2],dim[3]))
+	return h
+end
+
+function J_XYZ(dims,j)
+	h = Interactions(dims)
+	for r1 in CartesianIndices(h)
+		for r2 in CartesianIndices(h)
+			if norm(r1-r2) == 1.0
+				h[r1,r2] = j
+			else
+				h[r1,r2] = 0.0
+			end
+		end
+		#now the part for periodic boundary conditions...
+		for (index,value) in enumerate(Tuple(r1))
+			if value==1
+				r2 = [r1[1],r1[2],r1[3]]
+				r2[index] = dims[index]
+				h[r1,CartesianIndex(Tuple(r2))] = j
+			elseif value == dims[index] #ie if its at the edge
+				r2 = [r1[1],r1[2],r1[3]]
+				r2[index] = 1
+				h[r1,CartesianIndex(Tuple(r2))] = j
+			end
 		end
 	end
 	return h
@@ -45,10 +81,8 @@ function spin_array_3D(dim, axis, dir)
 	return spins
 end
 
-function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
-	#J is a 6 dimensional matrix of interaction strengths, so J(index1,index2) gives the interaction strength between spin at index 1 and spin at index 2
-	#N is the numer of time steps, time_interval is a tuple of the form (t_0, t_final), S_0 is the initial spin vector of the form S_0 = []
-	#N is the numer of time steps, time_interval is a tuple of the form (t_0, t_final), S_0 is the initial spin vector of the form S_0 = [sx_1 sy_1 sz_1; sx_2 sy_2 sz_2; ...] 
+function euler(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+	
 	collective_spin = Vector{Vector{Float64}}(undef,N) #collective_spin[t]=[sx(t),sy(t),sz(t)]
 
 	dt = time_interval[2]/N
@@ -76,18 +110,28 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
 					dW = randn()*dt #different for each spin
 					sum_x = 0
 					sum_y = 0
+					sum_z = 0
 					for l in 1:dim[1]
 						for m in 1:dim[2]
 							for n in 1:dim[3]
-								J_ij = J[[i,j,k],[l,m,n]]
-								sum_x+=2*J_ij*S[i,j,k][2]*S[l,m,n][3]
-								sum_y+=2*J_ij*S[i,j,k][1]*S[l,m,n][3]
+								
+								Jy_ij = Jx[[i,j,k],[l,m,n]]
+								Jz_ij = Jy[[i,j,k],[l,m,n]]
+								Jx_ij = Jz[[i,j,k],[l,m,n]]
+
+								sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jx_ij*S[i,j,k][2]*S[l,m,n][3]
+								
+								sum_y+=2*Jz_ij*S[i,j,k][1]*S[l,m,n][3]-2*Jx_ij*S[i,j,k][3]*S[l,m,n][1]
+								
+								sum_z+=2*Jx_ij*S[i,j,k][2]*S[l,m,n][1]-2*Jy_ij*S[i,j,k][1]*S[l,m,n][2]
 							end
 						end
 					end
 					x= S[i,j,k][1]  - (sum_x + Γ_deph *S[i,j,k][1]+ Γ_decay/2 * S[i,j,k][1])*dt - (sqrt(2*Γ_deph)+sqrt(Γ_decay))*S[i,j,k][2]*dW
+					
 					y= S[i,j,k][2] + (sum_y -(Ω*S[i,j,k][3]) - (Γ_deph+Γ_decay/2)*S[i,j,k][2])*dt +(sqrt(2*Γ_deph)+sqrt(Γ_decay))*S[i,j,k][1]*dW
-					z = S[i,j,k][3] + (Ω*S[i,j,k][2] - Γ_decay*(S[i,j,k][3]+1))*dt + (sqrt(Γ_decay)*(S[i,j,k][3]+1))*dW
+					
+					z = S[i,j,k][3] + (sum_z + Ω*S[i,j,k][2] - Γ_decay*(S[i,j,k][3]+1))*dt + (sqrt(Γ_decay)*(S[i,j,k][3]+1))*dW
 					S_new[i,j,k] = [x,y,z]
 
 					sx += x
@@ -102,16 +146,27 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)
 	return collective_spin
 end
 
-function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
-	J = J_matrix(dim, α)
+
+
+function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
+	if method == "Ising"
+		Jx = Jx_Ising(dim)
+		Jy = Jx_Ising(dim)
+		Jz = Jz_Ising(dim,α)
+	else
+		Jx =J_XYZ(dim)
+		Jy =J_XYZ(dim)
+		Jz =J_XYZ(dim)
+	end
+
     number_spins = dim[1]*dim[2]*dim[3]
 	J_bar = sum(J.data)/number_spins
     time_interval = (0.0, 10.0/J_bar)
 	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
-	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, α,J)[2]
+	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	collective_spin_all_traj[1] = initial_traj
 	for i in 2:number_repeats
-		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω,α,J)[2]
+		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 		collective_spin_all_traj[i] = traj
 	end
 	return collective_spin_all_traj
