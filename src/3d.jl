@@ -149,14 +149,15 @@ end
 
 
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
+	#α is the α is the dissipative model and α = [jx,jy,jz] in the XYZ model
 	if method == "Ising"
 		Jx = Jx_Ising(dim)
 		Jy = Jx_Ising(dim)
 		Jz = Jz_Ising(dim,α)
 	else
-		Jx =J_XYZ(dim)
-		Jy =J_XYZ(dim)
-		Jz =J_XYZ(dim)
+		Jx =J_XYZ(dim,α[1])
+		Jy =J_XYZ(dim,α[2])
+		Jz =J_XYZ(dim,α[3])
 	end
 
     number_spins = dim[1]*dim[2]*dim[3]
