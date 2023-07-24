@@ -148,7 +148,7 @@ end
 
 
 
-function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
+function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis)
 	#α is the α is the dissipative model and α = [jx,jy,jz] in the XYZ model
 	if method == "Ising"
 		Jx = Jx_Ising(dim)
@@ -159,42 +159,31 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
 		Jy =J_XYZ(dim,α[2])
 		Jz =J_XYZ(dim,α[3])
 	end
-
+	if axis ==1
+		dir = 1
+	else
+		dir = -1
+	end
     number_spins = dim[1]*dim[2]*dim[3]
 	J_bar = sum(Jz.data)/number_spins
     time_interval = (0.0, 10.0/J_bar)
 	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
-	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, axes, dir), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	collective_spin_all_traj[1] = initial_traj
 	average = initial_traj
 	for i in 2:number_repeats
-		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+		traj = euler_3D(N, time_interval, spin_array_3D(dim, axis, dir), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 		collective_spin_all_traj[i] = traj
 		average += traj
 	end
 	return collective_spin_all_traj, average/number_repeats
 end
 
-
-function spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
-	J = J_matrix(dim, α)
-    number_spins = dim[1]*dim[2]*dim[3]
-	J_bar = sum(J.data)/number_spins
-    time_interval = (0.0, 10.0/J_bar)
-	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
-	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, α,J)
-	collective_spin_all_traj[1] = initial_traj
-	average_collective_spin = initial_traj
-	for i in 2:number_repeats
-		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω,α,J)
-		collective_spin_all_traj[i] = traj
-		average_collective_spin += traj
-	end
-	
+function spin_sqeezing_param_3D(collective_spin, average_spin)
 	ξ_squared_time =Vector{Float64}()
 	for t in 1:N
-		mean_spin_vector = normalize(average_collective_spin[t]/number_repeats)
-		collective_spin_all_traj_at_t = getindex.(collective_spin_all_traj[:],t)
+		mean_spin_vector = normalize(average_spin[t])
+		collective_spin_all_traj_at_t = getindex.(collective_spin[:],t)
 		θ = acos(dot([0,0,1],mean_spin_vector))
 		k= normalize(cross([0,0,1],mean_spin_vector))
 		x=normalize((cos(θ)*[1,0,0]) + (sin(θ)*cross(k,[1,0,0])) + ((1-cos(θ))*k*dot(k,[1,0,0])))
@@ -206,12 +195,7 @@ function spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α)
 	return ξ_squared_time
 end
 
-function z_magnetisation_3D(dim, N, time_interval, number_repeats, Γ_deph, Γ_decay, Ω, α)
-	J = J_matrix(dim, α)
-	S_0 =  spin_array_3D(dim, 3, -1)
-	Sz_cummulative =  euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, α, J)[1]
-	for i in 2:number_repeats #we have already done the first one
-		Sz_cummulative += euler_3D(N, time_interval, spin_array_3D(dim, 3, -1), Γ_deph, Γ_decay, Ω, α, J)[1]
-	end
-	return Sz_cummulative/number_repeats
+function z_magnetisation_3D(average, axis)
+	#axis refers to 1 for x, 2 for y or 3 for z, depending along where you want to measure magnetisation
+	return getindex.(average[:],axis)
 end
