@@ -166,11 +166,13 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
 	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
 	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	collective_spin_all_traj[1] = initial_traj
+	average = initial_traj
 	for i in 2:number_repeats
 		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 		collective_spin_all_traj[i] = traj
+		average += traj
 	end
-	return collective_spin_all_traj
+	return collective_spin_all_traj, average/number_repeats
 end
 
 
