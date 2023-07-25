@@ -175,8 +175,9 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
 	return collective_spin_all_traj, average/number_repeats
 end
 
-function spin_sqeezing_param_3D(collective_spin, average_spin)
+function spin_sqeezing_param_3D(collective_spin, average_spin, number_spins)
 	ξ_squared_time =Vector{Float64}()
+	N = size(average_spin)[1]
 	for t in 1:N
 		mean_spin_vector = normalize(average_spin[t])
 		collective_spin_all_traj_at_t = getindex.(collective_spin[:],t)
@@ -191,7 +192,7 @@ function spin_sqeezing_param_3D(collective_spin, average_spin)
 	return ξ_squared_time
 end
 
-function z_magnetisation_3D(average, axis)
+function magnetisation_3D(average, axis)
 	#axis refers to 1 for x, 2 for y or 3 for z, depending along where you want to measure magnetisation
 	return getindex.(average[:],axis)
 end
