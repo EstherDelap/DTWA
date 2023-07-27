@@ -148,12 +148,12 @@ end
 
 
 
-function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
+function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#α is the α is the dissipative model and α = [jx,jy,jz] in the XYZ model
 	if method == "Ising"
 		Jx = Jx_Ising(dim)
 		Jy = Jx_Ising(dim)
-		Jz = Jz_Ising(dim,α)
+		Jz = Jz_Ising(dim,α[1])
 	else
 		Jx =J_XYZ(dim,α[1])
 		Jy =J_XYZ(dim,α[2])
@@ -164,11 +164,11 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method)
 	J_bar = sum(Jz.data)/number_spins
     time_interval = (0.0, 10.0/J_bar)
 	collective_spin_all_traj = Vector{Vector{Vector{Float64}}}(undef, number_repeats)
-	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+	initial_traj = euler_3D(N, time_interval, spin_array_3D(dim, axis, dir), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	collective_spin_all_traj[1] = initial_traj
 	average = initial_traj
 	for i in 2:number_repeats
-		traj = euler_3D(N, time_interval, spin_array_3D(dim, 1, 1), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
+		traj = euler_3D(N, time_interval, spin_array_3D(dim, axis, dir), Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 		collective_spin_all_traj[i] = traj
 		average += traj
 	end
