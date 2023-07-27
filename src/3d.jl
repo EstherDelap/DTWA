@@ -24,7 +24,7 @@ LinearAlgebra.norm(i::CartesianIndex) = sqrt(i[1]^2 + i[2]^2 + i[3]^2)
 
 function Jz_Ising(dims,α)
 	n = *(dims...)
-	h = Interactions(dims) # undef array
+	h = Interactions(dims[1],dims[2],dims[3]) # undef array
 	for r1 in CartesianIndices(h.data)
 		for r2 in CartesianIndices(h.data)
 			if norm(r1-r2) == 0
@@ -43,7 +43,7 @@ function Jx_Ising(dim)
 end
 
 function J_XYZ(dims,j)
-	h = Interactions(dims)
+	h = Interactions(dims[1], dims[2], dims[3])
 	for r1 in CartesianIndices(h)
 		for r2 in CartesianIndices(h)
 			if norm(r1-r2) == 1.0
