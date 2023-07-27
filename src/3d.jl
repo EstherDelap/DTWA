@@ -68,9 +68,9 @@ function J_XYZ(dims,j)
 	return h
 end
 
-function spin_array_3D(dim, axis, dir)
+function spin_array_3D(dim::Vector{Int64}, axis, dir)
 	#dim is a tuple of length 3, 'axis' is the axis (x y or z) along which the spin is aligned, and dir is the direction (1 or -1) of this alignement. Produced a 3 dimensional matrix of vectors, so each point is a vector [Sx, Sy, Sz]
-	spins = Array{Vector{Float64}}(undef, dim)
+	spins = Array{Vector{Float64}}(undef, dim[1], dim[2], dim[3])
 	for i in 1:dim[1]
 		for j in 1:dim[2]
 			for k in 1:dim[3]
@@ -89,7 +89,7 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	S = deepcopy(S_0)
 	dim = size(S)
 	number_atoms = dim[1]*dim[2]*dim[3]
-	S_new = Array{Vector{Float64}}(undef, dim)
+	S_new = Array{Vector{Float64}}(undef, dim[1],dim[2],dim[3])
 	
 	sx = 0
 	sy = 0
