@@ -11,7 +11,7 @@ A = DTWA.Interactions(3,3,3)
 
 @test DTWA.norm(DTWA.CartesianIndices(A)[2]) === sqrt(6)
 
-@test DTWA.Jz_Ising((3,3,3),3)[DTWA.CartesianIndices(A)[2],DTWA.CartesianIndices(A)[2]] === 0.0
+@test DTWA.getindex(DTWA.Jz_Ising((3,3,3),3),[2,1,1],[2,1,1]) === 0.0
 #testing if the Jz_ising func works
 @test DTWA.getindex(DTWA.Jz_Ising((3,3,3),2),[2,2,1],[2,2,1]) === 0.0
 #testing if the J_XYZ func works, specifically the periodic boundary conditions
