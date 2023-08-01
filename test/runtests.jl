@@ -1,4 +1,4 @@
 using Test
 using DTWA
 
-@test greet("hello") === "hello"
+@test DTWA.greet("hello") === "hello"
