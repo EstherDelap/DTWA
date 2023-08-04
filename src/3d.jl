@@ -73,6 +73,15 @@ function J_XYZ(dims,j)
 	return h
 end
 
+function intial_Si(i,dir)
+	#initial spin at sight i. S[i] is set to -1. Sx and Sy are chosen randomly from [-1,1] Returns [Sx,Sy,Sz,S0]
+	Sy = rand([-1,1])
+	Sz = rand([-1,1])
+	S = [rand([-1,1]), rand([-1,1]), rand([-1,1])]
+	S[i] = 1.0*dir
+	return Vector{Float64}(S)
+end
+
 function spin_array_3D(dim::Vector{Int64}, axis, dir)
 	#dim is a tuple of length 3, 'axis' is the axis (x y or z) along which the spin is aligned, and dir is the direction (1 or -1) of this alignement.
 	#Produces a 3 dimensional matrix of vectors, so each point is a vector [Sx, Sy, Sz]
@@ -161,8 +170,6 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	return collective_spin #vector of length N, each item is a vector of length 3
 end
 
-
-
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#dim is a vector of integers, N is the number of timesteps, α is a vector of length 3; in the Ising model, it is three values,
 	#in the XYZ model, α is the jx, jy, jz values. method id wither "Ising" of "XYZ". axis is the axis along with the spins are
@@ -195,30 +202,4 @@ function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, 
 		average += traj
 	end
 	return collective_spin_all_traj, average/number_repeats
-end
-
-function spin_sqeezing_param_3D(collective_spin, average_spin, number_spins)
-	ξ_squared_time =Vector{Float64}()
-	N = size(average_spin)[1]
-	for t in 1:N
-		mean_spin_vector = normalize(average_spin[t])
-		collective_spin_all_traj_at_t = getindex.(collective_spin[:],t)
-		θ = acos(dot([0,0,1],mean_spin_vector))
-		k= normalize(cross([0,0,1],mean_spin_vector))
-		x=normalize((cos(θ)*[1,0,0]) + (sin(θ)*cross(k,[1,0,0])) + ((1-cos(θ))*k*dot(k,[1,0,0])))
-		y=normalize((cos(θ)*[0,1,0]) + (sin(θ)*cross(k,[0,1,0])) + ((1-cos(θ))*k*dot(k,[0,1,0])))
-		res = optim_perp(x,y,collective_spin_all_traj_at_t)
-		ξ_squared = (minimum(res)^2)*(number_spins/dot(mean_spin_vector,mean_spin_vector))
-		push!(ξ_squared_time, ξ_squared)
-	end
-	return ξ_squared_time
-end
-
-function magnetisation_3D(average, axis)
-	#axis refers to 1 for x, 2 for y or 3 for z, depending along where you want to measure magnetisation
-	return getindex.(average[:],axis)
-end
-
-function greet(string)
-    return string
 end
