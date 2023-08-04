@@ -9,8 +9,4 @@ include("magnetisation.jl")
 include("spinsqueezingparam.jl")
 include("3d.jl")
 
-function greet(string)
-    return string
-end
-
 end

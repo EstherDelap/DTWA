@@ -23,6 +23,8 @@ Base.CartesianIndices(ints::Interactions) = CartesianIndices(dims(ints))
 LinearAlgebra.norm(i::CartesianIndex) = sqrt(i[1]^2 + i[2]^2 + i[3]^2)
 
 function Jz_Ising(dims,α)
+	#the transverse Ising Hamiltonian. the diagonal is zeroes. the interactions between two particles depends on their distance
+	#J_ij = 1/N * 1/d(spin i, spin j)
 	n = *(dims...)
 	h = Interactions(dims[1],dims[2],dims[3]) # undef array
 	for r1 in CartesianIndices(h.data)
@@ -38,11 +40,14 @@ function Jz_Ising(dims,α)
 end
 
 function Jx_Ising(dim)
+	#these are for the x and y directions for the ising model, so that the same equation can be used for the xyz model, dim is a vector
 	h = Interactions(zeros(Float64,dim[1],dim[2],dim[3],dim[1],dim[2],dim[3]))
 	return h
 end
 
 function J_XYZ(dims,j)
+	#j needs to be a floating number. Diagonals are zero. Nearest neighbour interactions are equal to j, so those next to the diagonal.
+	#we use periodic boundary conditions so the edges are also equal to j. 
 	h = Interactions(dims[1], dims[2], dims[3])
 	for r1 in CartesianIndices(h)
 		for r2 in CartesianIndices(h)
@@ -69,7 +74,8 @@ function J_XYZ(dims,j)
 end
 
 function spin_array_3D(dim::Vector{Int64}, axis, dir)
-	#dim is a tuple of length 3, 'axis' is the axis (x y or z) along which the spin is aligned, and dir is the direction (1 or -1) of this alignement. Produced a 3 dimensional matrix of vectors, so each point is a vector [Sx, Sy, Sz]
+	#dim is a tuple of length 3, 'axis' is the axis (x y or z) along which the spin is aligned, and dir is the direction (1 or -1) of this alignement.
+	#Produces a 3 dimensional matrix of vectors, so each point is a vector [Sx, Sy, Sz]
 	spins = Array{Vector{Float64}}(undef, dim[1], dim[2], dim[3])
 	for i in 1:dim[1]
 		for j in 1:dim[2]
@@ -82,7 +88,10 @@ function spin_array_3D(dim::Vector{Int64}, axis, dir)
 end
 
 function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
-	
+	#returns the time evolution of the spins with the initial spin array S_0. Works with both Ising model and XYZ model. 
+	#N is the number of time steps, Jx, Jy and Jz are the interactioon matrices (Jx=Jy=0 for the Ising model). 
+	#return collective_spin, a vector of length N such that  collective_spin[t]=[ave(sx[t]),ave(sy[t]),ave(sz[t])] 
+	#is the average value of all three spins at time t, ie averaged over all the spins. 
 	collective_spin = Vector{Vector{Float64}}(undef,N) #collective_spin[t]=[sx(t),sy(t),sz(t)]
 
 	dt = time_interval[2]/N
@@ -115,11 +124,16 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 						for m in 1:dim[2]
 							for n in 1:dim[3]
 								
-								Jy_ij = Jx[[i,j,k],[l,m,n]]
-								Jz_ij = Jy[[i,j,k],[l,m,n]]
-								Jx_ij = Jz[[i,j,k],[l,m,n]]
+								Jx_ij = Jx[[i,j,k],[l,m,n]]
+								Jy_ij = Jy[[i,j,k],[l,m,n]]
+								Jz_ij = Jz[[i,j,k],[l,m,n]]
 
-								sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jx_ij*S[i,j,k][2]*S[l,m,n][3]
+								#Jy_ij = Jx[[i,j,k],[l,m,n]]
+								#Jz_ij = Jy[[i,j,k],[l,m,n]]
+								#Jx_ij = Jz[[i,j,k],[l,m,n]]
+
+								#sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jz_ij*S[i,j,k][2]*S[l,m,n][3]
+								sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jz_ij*S[i,j,k][2]*S[l,m,n][3]
 								
 								sum_y+=2*Jz_ij*S[i,j,k][1]*S[l,m,n][3]-2*Jx_ij*S[i,j,k][3]*S[l,m,n][1]
 								
@@ -127,11 +141,12 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 							end
 						end
 					end
-					x= S[i,j,k][1]  - (sum_x + Γ_deph *S[i,j,k][1]+ Γ_decay/2 * S[i,j,k][1])*dt - (sqrt(2*Γ_deph)+sqrt(Γ_decay))*S[i,j,k][2]*dW
+					x= S[i,j,k][1]  + (sum_x - (Γ_deph + Γ_decay/2)* S[i,j,k][1])*dt - (sqrt(2*Γ_deph)+sqrt(Γ_decay))*S[i,j,k][2]*dW
 					
 					y= S[i,j,k][2] + (sum_y -(Ω*S[i,j,k][3]) - (Γ_deph+Γ_decay/2)*S[i,j,k][2])*dt +(sqrt(2*Γ_deph)+sqrt(Γ_decay))*S[i,j,k][1]*dW
 					
 					z = S[i,j,k][3] + (sum_z + Ω*S[i,j,k][2] - Γ_decay*(S[i,j,k][3]+1))*dt + (sqrt(Γ_decay)*(S[i,j,k][3]+1))*dW
+					
 					S_new[i,j,k] = [x,y,z]
 
 					sx += x
@@ -143,13 +158,19 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 		collective_spin[t] = [sx/2, sy/2, sz/2]
 		S = deepcopy(S_new)
 	end
-	return collective_spin
+	return collective_spin #vector of length N, each item is a vector of length 3
 end
 
 
 
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
-	#α is the α is the dissipative model and α = [jx,jy,jz] in the XYZ model
+	#dim is a vector of integers, N is the number of timesteps, α is a vector of length 3; in the Ising model, it is three values,
+	#in the XYZ model, α is the jx, jy, jz values. method id wither "Ising" of "XYZ". axis is the axis along with the spins are
+	#initially aligned and dir is the direction along this axis. Performs euler_3D for number_repeats. Return the 
+	#collective_spin_all_traj, a vector of length number_repeats uch that collective_spin_all_traj[n] is the nth trajectory 
+	#of the time evolution of the spins, so each element in collective_spin_all_traj is a vector of length N. Thus to get all the
+	#average spin values for a specific time t across all the all the trajectories we getindex.(collective_spin_all_traj[:],t)
+	#also return the average, a vector of length N, so that average[t]=[<sx[t]>,<sy[t]>,<sz[t]>] (<sx[t]> is average over all traj)
 	if method == "Ising"
 		Jx = Jx_Ising(dim)
 		Jy = Jx_Ising(dim)
