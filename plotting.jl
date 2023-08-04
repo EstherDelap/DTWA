@@ -14,35 +14,50 @@ function load_data(file_name, number, intro::String= "")
 	return data
 end
 
-
-
-function plot_different_gamma(S::Vector{Vector{Float64}};m=3, g = 1.0, γ = g/m, T = 10/γ,N = 100.0 )
-    t= range(0,stop = T,step = T/N)
-    S1,S2,S3,S4 = DTWA.different_gamma(S,m,g, γ, T,N)
-	P1 = plot(t,[S1,S2,S3,S4], title=string("Sz(t) for g/γ=",m))
-	xlabel!("t")
-	ylabel!("Sz")
-	P2 = plot(t,sum(+,(S1,S2,S3,S4))/4, title = string("<Sz(t)> for g/γ=",m))
-	xlabel!("t")
-	ylabel!("Sz")
-	return P1, P2
+function plot_magnetisation_loading_data(file_name, number, intro::String= "")
+	#plot(plot_magnetisation_not_loading(...)) to acc plot the data
+	#plots the magnetisation if the data has been loaded into the file filename. number is a range, and file_name mist end in a slash
+	data = load_data(file_name, number, intro) #data is an array of dictionaries
+	
+	plots = Vector{Vector{Float64}}(undef,size(data)[1])
+	label = Array{String}(undef, 1,size(data)[1])
+	for (i,dict) in enumerate(data)
+		plots[i] = DTWA.magnetisation_3D(dict["average"],dict["axis"])
+		label[1,i] = string("Ω = ",dict["Ω"])
+	end
+	return plots, label
 end
 
-function plot_magnetisation(n, N, time_interval, number_repeats,Γ_deph, Γ_decay, Ω)
-	P =plot(DTWA.z_magnetisation(n, N, time_interval, number_repeats,Γ_deph, Γ_decay, Ω))
+function plot_magnetisation_not_loading(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+	#plot(plot_magnetisation_not_loading(...)) to acc plot the data
+	#dim is a vector of length 3, N is the number of time intervals, α is a vector of length 3 that, for the Ising model, is just
+	#one integer repeated three times, and for the XYZ model is [Jx,Jy,Jz] and must be floats. method is either "Ising" or "XYZ".
+	#axis is the axis along which the spins are initially aligned ie 1, 2 or 3 for x, y or z respectively, and dir is the direction (-1 or +1)
+	data = DTWA.repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)[2] #this is the average spin over time
+	P =plot(DTWA.magnetisation_3D(data, axis))
 	return P
 end
 
-
-function plot_spin_squeezing_2(file_dir, number_spins)
-	data = load(file_dir,"collective_spin")
-	averag = load(file_dir,"average")
-	p = plot(DTWA.spin_sqeezing_param_3D(data, averag, number_spins))
+function plot_spin_sqeezing_loading_data(file_name, number, intro::String= "")
+	#to plot the data, do: plot(plot_spin_sqeezing_loading_data(...)[1], label = plot_spin_sqeezing_loading_data(...)[2])
+	#plots the spin squeezing parameter if the data has been loaded into the file filename. number is a range, and file_name must end in a slash
+	data = load_data(file_name, number, intro) #data is an array of dictionaries
+	dim= data[1]["dim"]
+	plots = Vector{Vector{Float64}}(undef,size(data)[1])
+	labels = Array{String}(undef,1, size(data)[1])
+	for (i,dict) in enumerate(data)
+		plots[i]= -10*log.(10,DTWA.spin_sqeezing_param(dict["collective_spin"], dict["average"], dim[1]*dim[2]*dim[3]))
+		labels[1,i] = string("α=", dict["α"][1])
+	end
+	return plots, labels
 end
 
-function plot_magnetisation_2(file_dir, axis)
-	#axis is 1,2 or 3 (ie x, y, or z) and file_dir is the file directory of the .jld2 file
-	average = load(file_dir,"average")
-	p = plot(DTWA.magnetisation_3D(average, axis))
+function plot_spin_sqeezing_not_loading(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+	#returns the plot for only a single simulation, so do plot(plot_spin_sqeezing_not_loading(...))
+	#dim is a vector of length 3, N is the number of time intervals, α is a vector of length 3 that, for the Ising model, is just
+	#one integer repeated three times, and for the XYZ model is [Jx,Jy,Jz] and must be floats. method is either "Ising" or "XYZ".
+	#axis is the axis along which the spins are initially aligned ie 1, 2 or 3 for x, y or z respectively, and dir is the direction (-1 or +1)
+	collectvie_spin,average = DTWA.repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+	p= -10*log.(10,DTWA.spin_sqeezing_param(collectvie_spin, average, dim[1]*dim[2]*dim[3] ))
+	return p
 end
-
