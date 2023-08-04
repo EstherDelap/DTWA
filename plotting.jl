@@ -2,6 +2,19 @@ using DTWA
 using Plots
 using JLD2, FileIO
 
+function load_data(file_name, number, intro::String= "")
+	#number is a range, filename is a string with a slash at the end
+	#loads the data in file_name (from your local computer). file_name should be a file directory e.g. "/Documents/UCL_summer_internship/RESULTS/results_3/"
+	#The content of this file need number of .jld2 files, all of the format "intro""number"".jld2"
+	#For example, if number =4 and intro="take1_" then incside filename there should be: "take1_1.jld2", "take1_2.jld2", "take1_3.jld2", "take1_4.jld2"
+	data=Vector{Dict}(undef,size(number)[1])
+	for (i, x) in enumerate(number)
+		data[i] = load(file_name*intro*string(x)*".jld2")
+	end
+	return data
+end
+
+
 
 function plot_different_gamma(S::Vector{Vector{Float64}};m=3, g = 1.0, γ = g/m, T = 10/γ,N = 100.0 )
     t= range(0,stop = T,step = T/N)
@@ -20,22 +33,6 @@ function plot_magnetisation(n, N, time_interval, number_repeats,Γ_deph, Γ_deca
 	return P
 end
 
-#function plot_spin_sqeezing_3D(dim,N, number_repeats,Γ_deph, Γ_decay,Ω)
-	#P1 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 0)
-	#P2 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 1)
-	#P3 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 2)
-	#P4 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 3)
-	#P5 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 4)
-	#P6 = DTWA.spin_sqeezing_param_3D(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, 5)
-	#P = plot([-10*log.(10,P1), -10*log.(10,P2), -10*log.(10,P3), -10*log.(10,P4), -10*log.(10,P5), -10*log.(10,P6)])
-	#P = plot([-10*log.(10,P1),-10*log.(10,P3), -10*log.(10,P5)])
-	#return P
-#end
-
-#function plot_magnetisation_3D(dim, N, time_interval, number_repeats, Γ_deph, Γ_decay, Ω, α)
-	#P =plot(DTWA.z_magnetisation_3D(dim, N, time_interval, number_repeats, Γ_deph, Γ_decay, Ω, α))
-	#return P
-#end
 
 function plot_spin_squeezing_2(file_dir, number_spins)
 	data = load(file_dir,"collective_spin")
