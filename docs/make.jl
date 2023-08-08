@@ -7,5 +7,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = " github.com/EstherDelap/DTWA.git"
+    repo = "https://github.com/EstherDelap/DTWA.git"
 )
