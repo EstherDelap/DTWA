@@ -28,7 +28,7 @@ function plot_magnetisation_loading_data(file_name, number, intro::String= "")
 	return plots, label
 end
 
-function plot_magnetisation_not_loading(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+function plot_magnetisation(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#plot(plot_magnetisation_not_loading(...)) to acc plot the data
 	#dim is a vector of length 3, N is the number of time intervals, α is a vector of length 3 that, for the Ising model, is just
 	#one integer repeated three times, and for the XYZ model is [Jx,Jy,Jz] and must be floats. method is either "Ising" or "XYZ".
@@ -52,7 +52,7 @@ function plot_spin_sqeezing_loading_data(file_name, number, intro::String= "")
 	return plots, labels
 end
 
-function plot_spin_sqeezing_not_loading(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+function plot_spin_sqeezing(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#returns the plot for only a single simulation, so do plot(plot_spin_sqeezing_not_loading(...))
 	#dim is a vector of length 3, N is the number of time intervals, α is a vector of length 3 that, for the Ising model, is just
 	#one integer repeated three times, and for the XYZ model is [Jx,Jy,Jz] and must be floats. method is either "Ising" or "XYZ".
