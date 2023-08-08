@@ -60,7 +60,7 @@ function J_XYZ(dims,j)
 		#now the part for periodic boundary conditions...
 		for (index,value) in enumerate(Tuple(r1))
 			if value==1
-				r2 = [r1[1],r1[2],r1[3]]
+				r2= [r1[1],r1[2],r1[3]]
 				r2[index] = dims[index]
 				h[r1,CartesianIndex(Tuple(r2))] = j
 			elseif value == dims[index] #ie if its at the edge
@@ -137,11 +137,6 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 								Jy_ij = Jy[[i,j,k],[l,m,n]]
 								Jz_ij = Jz[[i,j,k],[l,m,n]]
 
-								#Jy_ij = Jx[[i,j,k],[l,m,n]]
-								#Jz_ij = Jy[[i,j,k],[l,m,n]]
-								#Jx_ij = Jz[[i,j,k],[l,m,n]]
-
-								#sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jz_ij*S[i,j,k][2]*S[l,m,n][3]
 								sum_x+=2*Jy_ij*S[i,j,k][3]*S[l,m,n][2]-2*Jz_ij*S[i,j,k][2]*S[l,m,n][3]
 								
 								sum_y+=2*Jz_ij*S[i,j,k][1]*S[l,m,n][3]-2*Jx_ij*S[i,j,k][3]*S[l,m,n][1]
@@ -170,6 +165,7 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	return collective_spin #vector of length N, each item is a vector of length 3
 end
 
+"Tell whether there are too foo items in the array."
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#dim is a vector of integers, N is the number of timesteps, α is a vector of length 3; in the Ising model, it is three values,
 	#in the XYZ model, α is the jx, jy, jz values. method id wither "Ising" of "XYZ". axis is the axis along with the spins are

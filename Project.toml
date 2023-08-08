@@ -4,11 +4,12 @@ authors = ["EstherDelap <py20ed@leeds.ac.uk>"]
 version = "0.1.0"
 
 [deps]
-DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Cthulhu = "f68482b8-f384-11e8-15f7-abe071a5a75f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
