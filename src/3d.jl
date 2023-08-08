@@ -28,7 +28,7 @@ LinearAlgebra.norm(i::CartesianIndex) = sqrt(i[1]^2 + i[2]^2 + i[3]^2)
 
 Produces the interaction matrix in the z direction for the transverse Ising model.
 
-Returns an instance h of the struct Interactions, where h[r1,r2]=0.0 for all Cartesian Indeces that are the same, and ```h[r1,r2]=1/N * 1/d(r1, r2)^α```
+Returns an instance h of the struct Interactions, where h[r1,r2]=0.0 for all Cartesian Indeces that are the same, and 
 for all other Cartesian Indeces. d(r1,r2) is the Euclidean distance between the cartesian indeces r1 and r2, and N is the total number of spins. 
 """
 function Jz_Ising(dims,α)
@@ -137,13 +137,12 @@ function spin_array_3D(dim::Vector{Int64}, axis, dir)
 	end
 	return spins
 end
-
 """
     euler_3D(N::Int64, time_interval::Tuple{Int64}, S_0::Array{Vector{Float64}}, Γ_deph::Float64, Γ_decay::Float64, Ω::Float64, Jx::Interactions, Jy::Interactions, Jz::Interactions)
 
 Computes the time evolution of the initial spin array S_0 over the specified time_interval with N timesteps.
 
-Returns the time evolution of the collective spin, defined as ``\left[\sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]``. This is in the form of 
+Returns the time evolution of the collective spin, defined as. This is in the form of 
 a vector of length N where each element is a vecotr of length 3.
 
 # Arguments
@@ -231,7 +230,7 @@ end
 
 Repeatedly computes the time evolution of the spin system of dimensions dim for a certain time interval.
 
-Returns two arrays: the first is the time evolution of the collective spin, defined as ``\left[\sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]`` 
+Returns two arrays: the first is the time evolution of the collective spin, defined as 
 for each trajectory, in the form of a vecotr of length number_trajectories where each value is a vector of length N decribing the time
 evolution of the collective spin. The second array returned is the time evolution of the collective spin averaged across all trajectories, in the form of a 
 vector of length N where each element is the averaged [sx, sy, sz] spin vector. 
