@@ -3,7 +3,6 @@ using DTWA
 
 makedocs(
     sitename = "DTWA",
-    format = Documenter.HTML()
     modules = [DTWA]
 )
 
