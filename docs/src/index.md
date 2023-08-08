@@ -3,10 +3,10 @@
 Documentation for DTWA.jl
 
 ```@docs
-repeated_euler
-euler_3D
-spin_array_3D
-intial_Si
-J_XYZ
-Jx_Ising
+DTWA.repeated_euler
+DTWA.euler_3D
+DTWA.spin_array_3D
+DTWA.intial_Si
+DTWA.J_XYZ
+DTWA.Jx_Ising
 ```
