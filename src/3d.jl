@@ -165,7 +165,28 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	return collective_spin #vector of length N, each item is a vector of length 3
 end
 
-"Tell whether there are too foo items in the array."
+"""
+    repeated_euler(dim::Vector{Int64}(undef,3), N::Int64,number_repeats::Int64, Γ_deph::Float64, Γ_decay::Float64,Ω::Float64, α::AbstractVector(undef,3), method::String, axis::Int64, dir::Int64)
+
+Repeatedly computes the time evolution of the spin system of dimensions dim for a certain time interval.
+
+Returns the time evolution of the collective spin, defined as ``\left[\sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]`` 
+for each trajectory, in the form of a vecotr of length number_trajectories where each value is a vector of length N decribing the time
+evolution of the collective spin.
+
+# Arguments
+- dim::Vector{Int64}(undef,3): the dimensions of the spin system. Assumes a 3d Cartesian spin system, but can be made two dimensional by using 1
+- N::Int64: the number of time-steps
+- number_repeats::Int64: the number of repeated trajectories
+- Γ_deph::Float64: the rate of local dephasing
+- Γ_decay::Float64: the rate of local Γ_decay
+- Ω::Float64: the external field strength
+- α::AbstractVector(undef,3): A vector of length 3, for the Ising model interactions this is three of the same integers, [α,α,α] representing the interaction decay between negihbouring spins,
+ while for the xyz model this is three possibly different floats, [jx,jy,jz] indicating the strength of interaction in the x, y and z directions
+- method::String: either "Ising" or "XYZ" indicating the model of interactions
+- axis::Int64: the axis along which the spins are intially aligned, either 1, 2 or 3 for the x, y or z axis respectively
+- dir::Int64: the direction along which the spins are intially aligned
+"""
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#dim is a vector of integers, N is the number of timesteps, α is a vector of length 3; in the Ising model, it is three values,
 	#in the XYZ model, α is the jx, jy, jz values. method id wither "Ising" of "XYZ". axis is the axis along with the spins are
