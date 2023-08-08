@@ -26,10 +26,10 @@ LinearAlgebra.norm(i::CartesianIndex) = sqrt(i[1]^2 + i[2]^2 + i[3]^2)
 """
    Jz_Ising(dim::Vector{Int64},α::Int64)
 
-Produces the interaction matrix in the z direction for the transverse Ising model.
+Produces the interaction matrix in the `z` direction for the transverse Ising model.
 
-Returns an instance h of the struct Interactions, where h[r1,r2]=0.0 for all Cartesian Indeces that are the same, and 
-for all other Cartesian Indeces. d(r1,r2) is the Euclidean distance between the cartesian indeces r1 and r2, and N is the total number of spins. 
+Returns an instance `h` of the struct Interactions, where `h[r1,r2]=0.0` for all Cartesian Indeces that are the same, and 
+for all other Cartesian Indeces. `d(r1,r2)` is the Euclidean distance between the cartesian indeces `r1` and `r2`, and `N` is the total number of spins. 
 """
 function Jz_Ising(dims,α)
 	#the transverse Ising Hamiltonian. the diagonal is zeroes. the interactions between two particles depends on their distance
@@ -51,9 +51,9 @@ end
 """
    Jx_Ising(dim::Vector{Int64})
 
-Returns an instance h of the struct Interactions where h[r1,r2]=0.0 for all Cartesian Indeces r1, r2. 
+Returns an instance `h` of the struct Interactions where `h[r1,r2]=0.0` for all Cartesian Indeces `r1`, `r2`. 
 	
-In the transverse Ising model, spins dont interact in the x or y directions, so all interactions are zero.
+In the transverse Ising model, spins dont interact in the `x` or `y` directions, so all interactions are zero.
 """
 function Jx_Ising(dim)
 	#these are for the x and y directions for the ising model, so that the same equation can be used for the xyz model, dim is a vector
@@ -66,9 +66,9 @@ end
 
 Returns the interaction matrix for the XYZ model with periodic boundary conditions.
 
-For the XYZ model, the interactions matrix for a specific axis is a nearest neighbour interaction of strength j with periodic boundary conditions.
-Returns a six dimensional matrix h that is an instance of the struct Interactions, such that h[r1,r2] = j if r1 and r2 are cartesian indeces that
-are neighbours, or if they are cartesian indeces at opposite ends of the matrix (to create all periodic boundary conditions), and h[r1,r2] = 0.0 
+For the XYZ model, the interactions matrix for a specific axis is a nearest neighbour interaction of strength `j` with periodic boundary conditions.
+Returns a six dimensional matrix h that is an instance of the struct Interactions, such that `h[r1,r2] = j` if `r1` and `r2` are cartesian indeces that
+are neighbours, or if they are cartesian indeces at opposite ends of the matrix (to create all periodic boundary conditions), and `h[r1,r2] = 0.0` 
 for all other cartesian indices.
 
 """
@@ -101,10 +101,10 @@ function J_XYZ(dims,j)
 end
 
 """
-    intial_Si(i::Int64,dir::Int64) 
+    intial_Si(i::Int64,dir::Int64)
 
-Returns an initial spin for a single position in a spin array, as a vector of length 3, [sx, sy, sz]. The spin is initially aligned along the axis
-indicated by i (1->x axis, 2->y axis, 3->z axis) in the direction dir, which is either 1 or -1.  
+Returns an initial spin for a single position in a spin array, as a vector of length 3, `[sx, sy, sz]`. The spin is initially 
+aligned along the axis indicated by `i` (equal 1, 2 or 3 to indeicate `x`, `y` or `z` respectively) in the direction `dir`, which is either 1 or -1.  
 """
 function intial_Si(i,dir)
 	#initial spin at sight i. S[i] is set to -1. Sx and Sy are chosen randomly from [-1,1] Returns [Sx,Sy,Sz,S0]
@@ -113,16 +113,16 @@ function intial_Si(i,dir)
 	return Vector{Float64}(S)
 end
 
-"""
+@doc raw"""
    spin_array_3D(dim::Vector{Int64}, axis::Int64, dir::Int64)
 
-Returns a 3D array of spins of dimensions dim, where the spins are aligned aling axis in the direction dir. Each element is a vector of length 3 
-indicating the x, y and z spins [sx, sy, sz]. 
+Returns a 3D array of spins of dimensions `dim`, where the spins are aligned along `axis` in the direction `dir`.
+Each element is a vector of length 3 indicating the `x`, `y` and `z` spins `[sx, sy, sz]`. 
 
 # Arguments
-- dim::Vector{Int64}: the dimensions of the spin array  
-- axis::Int64: the axis along which the spins are aligned, either 1, 2 or 3 to indicate the x, y or z axis respectively
-- dir::Int64: the direction in which the spins are aligned along axis, either 1 or -1
+- `dim::Vector{Int64}`: the dimensions of the spin array  
+- `axis::Int64`: the axis along which the spins are aligned, either 1, 2 or 3 to indicate the x, y or z axis respectively
+- `dir::Int64`: the direction in which the spins are aligned along axis, either 1 or -1
 """
 function spin_array_3D(dim::Vector{Int64}, axis, dir)
 	#dim is a tuple of length 3, 'axis' is the axis (x y or z) along which the spin is aligned, and dir is the direction (1 or -1) of this alignement.
@@ -137,24 +137,25 @@ function spin_array_3D(dim::Vector{Int64}, axis, dir)
 	end
 	return spins
 end
-"""
+
+@doc raw"""
     euler_3D(N::Int64, time_interval::Tuple{Int64}, S_0::Array{Vector{Float64}}, Γ_deph::Float64, Γ_decay::Float64, Ω::Float64, Jx::Interactions, Jy::Interactions, Jz::Interactions)
 
-Computes the time evolution of the initial spin array S_0 over the specified time_interval with N timesteps.
+Computes the time evolution of the initial spin array `S_0` over the specified time_interval with `N` time steps.
 
-Returns the time evolution of the collective spin, defined as. This is in the form of 
-a vector of length N where each element is a vecotr of length 3.
+Returns the time evolution of the collective spin, defined as``\left[ \sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]``. 
+This is in the form of a vector of length `N` where each element is a vector of length 3.
 
 # Arguments
-- N::Int64: the number of time-steps
-- time_interval::Tuple{Int64}: the time interval in the form (t_0,t_final)
-- S_0::Array{Vector{Float64}}: A three dimensional initial spin array, each element being a vector of length 3 indicating the [sx, sy, sz] spin values for that position
-- Γ_deph::Float64: the rate of local dephasing
-- Γ_decay::Float64: the rate of local Γ_decay
-- Ω::Float64: the external field strength
-- Jx::Interactions: an Interactions matrix indeication the interactions between spins in the x direction. For the Ising model, this is zero.
-- Jy::Interactions: an Interactions matrix indeication the interactions between spins in the y direction. For the Ising model, this is zero.
-- Jz::Interactions: an Interactions matrix indeication the interactions between spins in the z direction
+- `N::Int64`: the number of time-steps
+- `time_interval::Tuple{Int64}`: the time interval in the form `(t_0,t_final)`
+- `S_0::Array{Vector{Float64}}`: A three dimensional initial spin array, each element being a vector of length 3 indicating the `[sx, sy, sz]` spin values for that position
+- `Γ_deph::Float64`: the rate of local dephasing
+- `Γ_decay::Float64`: the rate of local Γ_decay
+- `Ω::Float64`: the external field strength
+- `Jx::Interactions`: an Interactions matrix indeication the interactions between spins in the `x` direction. For the Ising model, this is zero.
+- `Jy::Interactions`: an Interactions matrix indeication the interactions between spins in the `y` direction. For the Ising model, this is zero.
+- `Jz::Interactions`: an Interactions matrix indeication the interactions between spins in the `z` direction
 """
 function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	#returns the time evolution of the spins with the initial spin array S_0. Works with both Ising model and XYZ model. 
@@ -228,26 +229,25 @@ end
 @doc raw"""
     repeated_euler(dim::Vector{Int64}, N::Int64,number_repeats::Int64, Γ_deph::Float64, Γ_decay::Float64,Ω::Float64, α::AbstractVector, method::String, axis::Int64, dir::Int64)
 
-Repeatedly computes the time evolution of the spin system of dimensions dim for a certain time interval.
+Repeatedly computes the time evolution of the spin system of dimensions `dim` for a certain time interval.
 
-Returns two arrays: the first is the time evolution of the collective spin, defined as 
-``\left[ \sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]``
-for each trajectory, in the form of a vecotr of length number_trajectories where each value is a vector of length N decribing the time
-evolution of the collective spin. The second array returned is the time evolution of the collective spin averaged across all trajectories, in the form of a 
-vector of length N where each element is the averaged [sx, sy, sz] spin vector. 
+Returns two arrays: the first is the time evolution of the collective spin, defined as ``\left[ \sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]``
+for each trajectory, in the form of a vector of length `number_trajectories` where each value is a vector of length `N` decribing the time
+evolution of the collective spin. The second array returned is the time evolution of the collective spin averaged across all trajectories, 
+in the form of a vector of length `N` where each element is the averaged `[sx, sy, sz]` spin vector. 
  
 # Arguments
-- dim::Vector{Int64}: the dimensions of the spin system. Assumes a 3d Cartesian spin system, but can be made two dimensional by using 1
-- N::Int64: the number of time-steps
-- number_repeats::Int64: the number of repeated trajectories
-- Γ_deph::Float64: the rate of local dephasing
-- Γ_decay::Float64: the rate of local Γ_decay
-- Ω::Float64: the external field strength
-- α::AbstractVector: A vector of length 3, for the Ising model interactions this is three of the same integers, [α,α,α] representing the interaction decay between negihbouring spins,
- while for the xyz model this is three possibly different floats, [jx,jy,jz] indicating the strength of interaction in the x, y and z directions
-- method::String: either "Ising" or "XYZ" indicating the model of interactions
-- axis::Int64: the axis along which the spins are intially aligned, either 1, 2 or 3 for the x, y or z axis respectively
-- dir::Int64: the direction along which the spins are intially aligned
+- `dim::Vector{Int64}`: the dimensions of the spin system. Assumes a 3d Cartesian spin system, but can be made two dimensional by using 1
+- `N::Int64: the number of time-steps
+- `number_repeats::Int64`: the number of repeated trajectories
+- `Γ_deph::Float64`: the rate of local dephasing
+- `Γ_decay::Float64`: the rate of local decay
+- `Ω::Float64`: the external field strength
+- `α::AbstractVector`: A vector of length 3, for the Ising model interactions this is three of the same integers, `[α,α,α]` representing the interaction decay between negihbouring spins,
+ while for the XYZ model this is three possibly different floats, `[jx,jy,jz]` indicating the strength of interaction in the `x`, `y` and `z` directions
+- `method::String`: either `"Ising"` or `"XYZ"` indicating the model of interactions
+- `axis::Int64`: the axis along which the spins are intially aligned, either 1, 2 or 3 for the `x`, `y` or `z` axis respectively
+- `dir::Int64`: the direction along which the spins are intially aligned
 """
 function repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
 	#dim is a vector of integers, N is the number of timesteps, α is a vector of length 3; in the Ising model, it is three values,
