@@ -3,5 +3,10 @@
 Documentation for DTWA.jl
 
 ```@docs
-repeated_euler(dim, N,number_repeats,Γ_deph, Γ_decay,Ω, α, method, axis, dir)
+repeated_euler
+euler_3D
+spin_array_3D
+intial_Si
+J_XYZ
+Jx_Ising
 ```
