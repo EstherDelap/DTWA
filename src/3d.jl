@@ -225,12 +225,14 @@ function euler_3D(N, time_interval, S_0, Γ_deph, Γ_decay, Ω, Jx, Jy, Jz)
 	return collective_spin #vector of length N, each item is a vector of length 3
 end
 
-"""
+@doc raw"""
     repeated_euler(dim::Vector{Int64}, N::Int64,number_repeats::Int64, Γ_deph::Float64, Γ_decay::Float64,Ω::Float64, α::AbstractVector, method::String, axis::Int64, dir::Int64)
 
 Repeatedly computes the time evolution of the spin system of dimensions dim for a certain time interval.
 
-Returns two arrays: the first is the time evolution of the collective spin, defined as 
+Returns two arrays: the first is the time evolution of the collective spin, defined as ```math
+\left[\sum_i^n s_i^x/2, \sum_i^n s_i^y/2, \sum_i^n s_i^z/2\right]
+```
 for each trajectory, in the form of a vecotr of length number_trajectories where each value is a vector of length N decribing the time
 evolution of the collective spin. The second array returned is the time evolution of the collective spin averaged across all trajectories, in the form of a 
 vector of length N where each element is the averaged [sx, sy, sz] spin vector. 
