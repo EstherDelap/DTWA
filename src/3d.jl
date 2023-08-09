@@ -114,7 +114,7 @@ function intial_Si(i,dir)
 end
 
 @doc raw"""
-   spin_array_3D(dim::Vector{Int64}, axis::Int64, dir::Int64)
+    spin_array_3D(dim::Vector{Int64}, axis::Int64, dir::Int64)
 
 Returns a 3D array of spins of dimensions `dim`, where the spins are aligned along `axis` in the direction `dir`.
 Each element is a vector of length 3 indicating the `x`, `y` and `z` spins `[sx, sy, sz]`. 
@@ -243,8 +243,7 @@ in the form of a vector of length `N` where each element is the averaged `[sx, s
 - `Γ_deph::Float64`: the rate of local dephasing
 - `Γ_decay::Float64`: the rate of local decay
 - `Ω::Float64`: the external field strength
-- `α::AbstractVector`: A vector of length 3, for the Ising model interactions this is three of the same integers, `[α,α,α]` representing the interaction decay between negihbouring spins,
- while for the XYZ model this is three possibly different floats, `[jx,jy,jz]` indicating the strength of interaction in the `x`, `y` and `z` directions
+- `α::AbstractVector`: A vector of length 3, for the Ising model interactions this is three of the same integers, `[α,α,α]` representing the interaction decay between negihbouring spins, while for the XYZ model this is three possibly different floats, `[jx,jy,jz]` indicating the strength of interaction in the `x`, `y` and `z` directions
 - `method::String`: either `"Ising"` or `"XYZ"` indicating the model of interactions
 - `axis::Int64`: the axis along which the spins are intially aligned, either 1, 2 or 3 for the `x`, `y` or `z` axis respectively
 - `dir::Int64`: the direction along which the spins are intially aligned
